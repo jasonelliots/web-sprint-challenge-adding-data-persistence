@@ -27,7 +27,11 @@ server.post('/api/projects', (req, res) => {
     db('projects')
     .insert(req.body)
     .then(projectId => {
-      res.status(201).json({projectId});
+        db('projects')
+            .where({ id: projectId[0]})
+                .then(newTask => {
+                    res.status(201).json(newTask);
+                })
     })
     .catch(error => {
       res.status(500).json({message: error.message});
@@ -50,12 +54,32 @@ server.post('/api/projects', (req, res) => {
     db('resources')
     .insert(req.body)
     .then(resourceId => {
-      res.status(200).json(resourceId);
+        db('resources')
+            .where({ id: resourceId[0]})
+                .then(newResource => {
+                    res.status(201).json(newResource);
+                })
     })
     .catch(error => {
       res.status(500).json({message: error.message});
     });
   });
+
+  // stretch projectTasks
+
+  server.get('/api/tasks/project/:id', (req, res) => {
+    const projectId = req.params.id
+      db('tasks')
+      .join("projects", "tasks.project_id", "projects.id")
+      .select("projects.name as projectname", "projects.description as projectdescription", "tasks.description as taskdescription")
+      .where({project_id: projectId})
+      .then(projectTasks => {
+        res.status(200).json(projectTasks);
+      })
+      .catch(error => {
+        res.status(500).json({message: error.message});
+      });
+  })
 
 
   // tasks 
@@ -76,9 +100,13 @@ server.post('/api/projects', (req, res) => {
   server.post('/api/tasks', (req, res) => {
     db('tasks')
     .insert(req.body)
-    .then(tasks => {
-      res.status(200).json(tasks);
-    })
+    .then(taskId => {
+        db("tasks")
+            .where({ id: taskId[0] })
+                .then(newTask => {
+                    res.status(201).json(newTask);
+                });
+        })
     .catch(error => {
       res.status(500).json({message: error.message});
     });
