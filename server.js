@@ -63,7 +63,7 @@ server.post('/api/projects', (req, res) => {
   server.get('/api/tasks', (req, res) => {
     db('tasks')
     .join("projects", "tasks.project_id", "projects.id")
-    .select("tasks.description", "projects.name", "projects.description")
+    .select("projects.name as projectname", "projects.description as projectdescription", "tasks.description as taskdescription")
     .then(tasks => {
         console.log(tasks)
       res.status(200).json(tasks);
